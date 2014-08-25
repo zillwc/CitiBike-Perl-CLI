@@ -13,8 +13,6 @@ use 5.010;
 use LWP::UserAgent;
 use JSON qw( decode_json );
 use Data::Dump qw(dump);
-use JSON qw( decode_json );
-use Data::Dump qw(dump);
 
 use constant false => 0;
 use constant true  => 1;
@@ -24,6 +22,8 @@ my $action = shift || 'park';
 my $ip = '0.0.0.0';
 my $lat = "0";
 my $lng = "0";
+my $stop = false;
+my $freq = 5;
 
 # init
 main();
@@ -32,15 +32,22 @@ sub main {
 	checkArgs() || exit;;
 	getLocation();
 
+	while (!$stop) {
+		getCitiData();
+		sleep($freq);
+	}
+}
+
+sub getCitiData {
+	# TODO
 }
 
 sub getLocation {
 	my $endpoint = "http://ipinfo.io/json";
 	my $userAgent = LWP::UserAgent->new;
     my $req = HTTP::Request->new(GET => $endpoint);
-    	#$req->header('Content-Type' => 'application/json');
-    
     my $resp = $userAgent->request($req);
+
     if ($resp->is_success) {
     	my $message = $resp->decoded_content;
         my $json = decode_json($message);
