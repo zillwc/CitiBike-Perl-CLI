@@ -12,7 +12,6 @@ use warnings;
 use 5.010;
 use LWP::UserAgent;
 use JSON qw( decode_json );
-use Data::Dump qw(dump);
 
 use constant false => 0;
 use constant true  => 1;
