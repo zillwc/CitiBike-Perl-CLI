@@ -12,6 +12,7 @@ use warnings;
 use 5.010;
 use LWP::UserAgent;
 use JSON qw( decode_json );
+use Data::Dumper;
 
 use constant false => 0;
 use constant true  => 1;
@@ -147,10 +148,12 @@ sub getCitiData {
         	my $status = $json->{'status'};
 
         	if ($status eq 200) {
-        		my @stations = $status = $json->{'stations'};
-        		for (my $i=0;$i<@stations;$i++) {
-        			print $i;
-        		}
+        		my @stations = $json->{'stations'}[0];
+        		print(Dumper(@stations->[0]));
+        		#print @stations->[0]->{'id'};
+        		# for (my $i=0;$i<@stations;$i++) {
+        		# 	print $stations[$i]->{};
+        		# }
     		} else {
 				print "Could not retrieve data from CitiBike: HTTP ".$status;
 				exit;
