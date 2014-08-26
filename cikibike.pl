@@ -29,6 +29,7 @@ $|++;
 # init
 main();
 
+# Main init function
 sub main {
 	checkArgs() || exit;
 	
@@ -54,6 +55,7 @@ sub main {
 	}
 }
 
+# Auto find the users location using their ip address
 sub getAutoLocation {
 	my $endpoint = "http://ipinfo.io/json";
 	my $userAgent = LWP::UserAgent->new;
@@ -87,6 +89,7 @@ sub getAutoLocation {
     return true;
 }
 
+# Ask the user to enter their address
 sub getUserAddress {
 	print "What is your address: ";
 	my $userAddress = <>;
@@ -98,6 +101,7 @@ sub getUserAddress {
 	}
 }
 
+# Use google reverse location to get their lat and lng
 sub getLocationFromAddress {
 	my $address = shift;
 	$address =~ s/\s/+/g;
@@ -128,6 +132,7 @@ sub getLocationFromAddress {
     return true;
 }
 
+# Make request and collect station data from citi server
 sub getCitiData {
 	my $endpoint = "http://54.187.10.164/citi/v1/?lat=".$lat."&lng=".$lng."&action=".$action;
 	my $userAgent = LWP::UserAgent->new;
@@ -161,6 +166,7 @@ sub getCitiData {
     }
 }
 
+# Function makes sure the arguments provided are contained within scope
 sub checkArgs {
 	if ($action eq "park" || $action eq "find") {
 		return true;
@@ -170,6 +176,7 @@ sub checkArgs {
 	return false;
 }
 
+# Function sends a clear cmd to screen based on the OS
 sub clearScreen {
 	system $^O eq 'MSWin32' ? 'cls' : 'clear';
 }
