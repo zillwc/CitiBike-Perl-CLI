@@ -149,11 +149,15 @@ sub getCitiData {
 
         	if ($status eq 200) {
         		my @stations = $json->{'stations'}[0];
+        		for (my $i=0; $i<@stations; $i++) {
+        			my $index = $i+1;
+        			my @station = values @stations->[$i];
+
+        			my $stationLabel = $station[1];
+        			print "Station: $stationLabel";
+        		}
         		print(Dumper(@stations->[0]));
-        		#print @stations->[0]->{'id'};
-        		# for (my $i=0;$i<@stations;$i++) {
-        		# 	print $stations[$i]->{};
-        		# }
+        		
     		} else {
 				print "Could not retrieve data from CitiBike: HTTP ".$status;
 				exit;
