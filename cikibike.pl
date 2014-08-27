@@ -17,15 +17,16 @@ use Data::Dumper;
 use constant false => 0;
 use constant true  => 1;
 
-my $action = shift || 'park';
-
 my $ip = '0.0.0.0';
 my $lat = "0";
 my $lng = "0";
 my $stop = false;
-my $freq = 5;
 
 $|++;
+
+GetOptions('a|action=a'  => \$action,
+       'f|freq=f'        => \$freq);
+
 
 # init
 main();
@@ -52,8 +53,26 @@ sub main {
 	while (!$stop) {
 		clearScreen();
 		getCitiData();
-		sleep($freq);
+        printCounter();
+        startCounter();
 	}
+}
+
+sub startCounter {
+    for (my $i=0; $i<$freq; $i++) {
+        sleep(1);
+        print "\b";
+        print " ";
+        print "\b";
+    }
+}
+
+# Prints the counter as per frequency variable
+sub printCounter {
+    print "Refreshing in: \n";
+    for (my $i=0; $i<$freq; $i++) {
+        print "_";
+    }
 }
 
 # Auto find the users location using their ip address
@@ -148,16 +167,19 @@ sub getCitiData {
         	my $status = $json->{'status'};
 
         	if ($status eq 200) {
-        		my @stations = $json->{'stations'}[0];
-        		for (my $i=0; $i<@stations; $i++) {
-        			my $index = $i+1;
-        			my @station = values @stations->[$i];
+                my $stations = $json->{'stations'};
+                my $len = @$stations;
+                print "The $len closest stations to your location:\n\n";
 
-        			my $stationLabel = $station[1];
-        			print "Station: $stationLabel";
-        		}
-        		print(Dumper(@stations->[0]));
-        		
+                for (my $i=0; $i<$len; $i++) {
+                    my $stationLabel = @$stations[$i]->{'label'};
+                    my $bikesAvail = @$stations[$i]->{'available_bikes'};
+                    my $docksAvail = @$stations[$i]->{'available_docks'};
+                    my $distAway = @$stations[$i]->{'dist_from_location'};
+                    my $distAway = sprintf("%.3f", $distAway);
+                    
+                    print " $stationLabel\n\t$bikesAvail bikes available\n\t$docksAvail docks available\n\t$distAway miles away from your location\n\n\n";
+                }
     		} else {
 				print "Could not retrieve data from CitiBike: HTTP ".$status;
 				exit;
@@ -175,6 +197,7 @@ sub getCitiData {
 
 # Function makes sure the arguments provided are contained within scope
 sub checkArgs {
+    $action = lc $action;
 	if ($action eq "park" || $action eq "find") {
 		return true;
 	}
@@ -187,3 +210,14 @@ sub checkArgs {
 sub clearScreen {
 	system $^O eq 'MSWin32' ? 'cls' : 'clear';
 }
+
+1;
+ 
+__END__
+
+=head1 SYNOPSIS
+  
+Options:
+  
+ -a --action=ACTION     Action to take preference to (action or park)
+ -f --freq=FREQUENCY    Update frequency (how often to update)
