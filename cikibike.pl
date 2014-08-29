@@ -1,11 +1,13 @@
 #!/usr/bin/perl
 
-#########################
+##############################
 ##
 ##	CitiBike CLI
 ##	Zill Christian
 ##
-#########################
+##  MIT License
+##
+##############################
 
 use strict;
 use warnings;
@@ -13,6 +15,7 @@ use 5.010;
 use LWP::UserAgent;
 use JSON qw( decode_json );
 use Data::Dumper;
+use Getopt::Long;
 
 use constant false => 0;
 use constant true  => 1;
@@ -22,11 +25,12 @@ my $lat = "0";
 my $lng = "0";
 my $stop = false;
 
+my $action = "park";
+my $freq = 15;
+
 $|++;
 
-GetOptions('a|action=a'  => \$action,
-       'f|freq=f'        => \$freq);
-
+GetOptions('a|action:s' =>\$action, 'f|freq:f' =>\$freq);
 
 # init
 main();
@@ -56,23 +60,6 @@ sub main {
         printCounter();
         startCounter();
 	}
-}
-
-sub startCounter {
-    for (my $i=0; $i<$freq; $i++) {
-        sleep(1);
-        print "\b";
-        print " ";
-        print "\b";
-    }
-}
-
-# Prints the counter as per frequency variable
-sub printCounter {
-    print "Refreshing in: \n";
-    for (my $i=0; $i<$freq; $i++) {
-        print "_";
-    }
 }
 
 # Auto find the users location using their ip address
@@ -111,8 +98,8 @@ sub getAutoLocation {
 
 # Ask the user to enter their address
 sub getUserAddress {
-	print "What is your address: ";
-	my $userAddress = <>;
+	print "\nWhat is your address: ";
+	my $userAddress = <STDIN>;
 	if (getLocationFromAddress($userAddress)) {
 		return true;
 	} else {
@@ -169,14 +156,15 @@ sub getCitiData {
         	if ($status eq 200) {
                 my $stations = $json->{'stations'};
                 my $len = @$stations;
+
                 print "The $len closest stations to your location:\n\n";
 
                 for (my $i=0; $i<$len; $i++) {
                     my $stationLabel = @$stations[$i]->{'label'};
                     my $bikesAvail = @$stations[$i]->{'available_bikes'};
                     my $docksAvail = @$stations[$i]->{'available_docks'};
-                    my $distAway = @$stations[$i]->{'dist_from_location'};
-                    my $distAway = sprintf("%.3f", $distAway);
+                    my $distAway = sprintf("%.3f", @$stations[$i]->{'dist_from_location'});
+                    #my $distAway = sprintf("%.3f", $distAway);
                     
                     print " $stationLabel\n\t$bikesAvail bikes available\n\t$docksAvail docks available\n\t$distAway miles away from your location\n\n\n";
                 }
@@ -192,6 +180,22 @@ sub getCitiData {
     } else {
     	print "Could not make handshake with CitiBike server: 500 Internal Server Error";
     	exit;
+    }
+}
+
+# Start a timer for time to reset
+sub startCounter {
+    for (my $i=0; $i<$freq; $i++) {
+        sleep(1);
+        print "\b \b";
+    }
+}
+
+# Prints the counter as per frequency variable
+sub printCounter {
+    print "Refreshing in: \n";
+    for (my $i=0; $i<$freq; $i++) {
+        print "_";
     }
 }
 
