@@ -43,7 +43,7 @@ sub main {
 	my $opt = 0;
 	while (!($opt==1 || $opt==2)) {
 		clearScreen();
-		print "CitiBike CLI\n\nHow would you like me to find you? (1/2)\n1. Auto Find Me\n2. Enter Address\n\n:";
+		print "CitiBike CLI\n\nHow would you like me to find you? (1/2)\n1. Auto Find Me\n2. Enter Address\n\n: ";
 		$opt = <STDIN>;
 	}
 
